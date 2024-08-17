@@ -4,7 +4,7 @@
 > ### [RealWorld](https://github.com/gothinkster/realworld) practice with Golang/Gin refactored with clean architecture and microservices practice (e.g. caching, distributed lock, monitoring and containerize ...)
 
 
-This codebase was cloned from [golang-gin-realworld-example-app](https://github.com/gothinkster/golang-gin-realworld-example-app) and refactored with clean architecture + docker and adding micro + 
+This codebase was cloned from [golang-gin-realworld-example-app](https://github.com/gothinkster/golang-gin-realworld-example-app) and refactored with clean architecture + docker and adding modern practices
 
 #### Full list what has been used:
 * [Gin](https://github.com/gin-gonic/gin) - Web framework
