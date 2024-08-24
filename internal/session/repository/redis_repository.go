@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gothinkster/golang-gin-realworld-example-app/config"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/models"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/session"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/db/redis"
@@ -13,20 +14,16 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	basePrefix = "api-session:"
-)
-
 // Session repository
 type sessionRepo struct {
 	redisClient *redis.Client
+	appName     string
 	basePrefix  string
-	// cfg         *config.Config
 }
 
 // Session repository constructor
-func NewSessionRepository(redisClient *redis.Client) session.SessRepository {
-	return &sessionRepo{redisClient: redisClient, basePrefix: basePrefix}
+func NewSessionRepository(cfg *config.Config, redisClient *redis.Client) session.SessRepository {
+	return &sessionRepo{redisClient: redisClient, appName: cfg.Server.AppName, basePrefix: fmt.Sprintf("%s:", cfg.Session.Prefix)}
 }
 
 // Create session in redis
@@ -78,5 +75,5 @@ func (s *sessionRepo) DeleteByID(ctx context.Context, sessionID string) error {
 }
 
 func (s *sessionRepo) buildKey(sessionID string) string {
-	return fmt.Sprintf("realworld:%s:%s", s.basePrefix, sessionID)
+	return fmt.Sprintf("%s:%s:%s", s.appName, s.basePrefix, sessionID)
 }

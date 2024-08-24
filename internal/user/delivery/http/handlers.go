@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gothinkster/golang-gin-realworld-example-app/config"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/models"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/session"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/user"
@@ -17,13 +17,14 @@ import (
 )
 
 type userHandlers struct {
+	cfg      *config.Config
 	userRepo user.Repository
 	sessUC   session.UseCase
 	locker   locker.Locker
 }
 
-func NewUserHandlers(userRepo user.Repository, sessUC session.UseCase, locker locker.Locker) user.Handlers {
-	return &userHandlers{userRepo, sessUC, locker}
+func NewUserHandlers(cfg *config.Config, userRepo user.Repository, sessUC session.UseCase, locker locker.Locker) user.Handlers {
+	return &userHandlers{cfg, userRepo, sessUC, locker}
 }
 
 func (h userHandlers) UsersRegistration() gin.HandlerFunc {
@@ -46,7 +47,7 @@ func (h userHandlers) UsersRegistration() gin.HandlerFunc {
 			c.JSON(http.StatusUnprocessableEntity, httpErrors.NewError("database", err))
 			return
 		}
-		userSession, _ := h.sessUC.CreateSession(ctx, &userModelValidator.userModel, int(24*time.Hour.Seconds()))
+		userSession, _ := h.sessUC.CreateSession(ctx, &userModelValidator.userModel, h.cfg.Session.Expire)
 		serializer := UserSerializer{ctx, userSession.Token, userModelValidator.userModel}
 
 		c.JSON(http.StatusCreated, gin.H{"user": serializer.Response()})
@@ -75,7 +76,7 @@ func (h userHandlers) UsersLogin() gin.HandlerFunc {
 			c.JSON(http.StatusForbidden, httpErrors.NewError("login", errors.New("Not Registered email or invalid password")))
 			return
 		}
-		userSession, _ := h.sessUC.CreateSession(ctx, &userModel, int(24*time.Hour.Seconds()))
+		userSession, _ := h.sessUC.CreateSession(ctx, &userModel, h.cfg.Session.Expire)
 		serializer := UserSerializer{ctx, userSession.Token, userModel}
 		c.JSON(http.StatusOK, gin.H{"user": serializer.Response()})
 	}

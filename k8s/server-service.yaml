@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    api: api
+  name: api
+spec:
+  selector:
+    app: api-deployment
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080

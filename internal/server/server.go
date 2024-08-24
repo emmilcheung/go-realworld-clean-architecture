@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gothinkster/golang-gin-realworld-example-app/config"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/db/postgres"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/db/redis"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/locker"
@@ -25,13 +26,20 @@ type Server struct {
 	db          *postgres.DB
 	redisClient *redis.Client
 	locker      locker.Locker
-	// cfg         *config.Config
+	cfg         *config.Config
 	// logger      logger.Logger
 }
 
 // NewServer New Server constructor
-func NewServer(db *postgres.DB, redisClient *redis.Client, locker locker.Locker) *Server {
-	return &Server{gin: gin.Default(), db: db, redisClient: redisClient, locker: locker}
+func NewServer(cfg *config.Config, db *postgres.DB, redisClient *redis.Client, locker locker.Locker) *Server {
+	var serverMode string
+	if cfg.Server.Debug {
+		serverMode = gin.DebugMode
+	} else {
+		serverMode = gin.ReleaseMode
+	}
+	gin.SetMode(serverMode)
+	return &Server{gin: gin.Default(), cfg: cfg, db: db, redisClient: redisClient, locker: locker}
 }
 
 func (s *Server) Run() error {
@@ -41,8 +49,11 @@ func (s *Server) Run() error {
 
 	// Ref: https://gin-gonic.com/docs/examples/graceful-restart-or-stop/
 	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: s.gin.Handler(),
+		Addr:           s.cfg.Server.Port,
+		Handler:        s.gin.Handler(),
+		ReadTimeout:    time.Second * s.cfg.Server.ReadTimeout,
+		WriteTimeout:   time.Second * s.cfg.Server.WriteTimeout,
+		MaxHeaderBytes: maxHeaderBytes,
 	}
 
 	go func() {

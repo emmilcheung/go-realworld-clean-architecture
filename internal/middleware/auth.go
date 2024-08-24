@@ -48,8 +48,6 @@ func (mv *MiddlewareManager) UpdateContextUserModel(c *gin.Context, my_user_id u
 	c.Set("my_session_id", sessionId)
 }
 
-// You can custom middlewares yourself as the doc: https://github.com/gin-gonic/gin#custom-middleware
-//  r.Use(AuthMiddleware(true))
 func (mv *MiddlewareManager) AuthMiddleware(db *gorm.DB, auto401 bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		mv.UpdateContextUserModel(c, 0, "")

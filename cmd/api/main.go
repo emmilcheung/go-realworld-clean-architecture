@@ -1,16 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/gothinkster/golang-gin-realworld-example-app/config"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/models"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/server"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/db/postgres"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/db/redis"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/locker"
+	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/utils"
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
@@ -37,8 +41,34 @@ func Migrate(db *postgres.DB) {
 
 func main() {
 
-	redisUrl := "127.0.0.1:6379"
-	postgresUrl := "postgresql://postgres:postgres@localhost:5432/realworld?sslmode=disable"
+	configPath := utils.GetConfigPath(os.Getenv("config"))
+
+	cfgFile, err := config.LoadConfig(configPath)
+	if err != nil {
+		log.Fatalf("LoadConfig: %v", err)
+	}
+
+	cfg, err := config.ParseConfig(cfgFile)
+	if err != nil {
+		log.Fatalf("ParseConfig: %v", err)
+	}
+
+	// postgres
+	var sslMode string
+	if cfg.Postgres.PostgresqlSSLMode {
+		sslMode = "enable"
+	} else {
+		sslMode = "disable"
+	}
+	postgresUrl := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.Postgres.PostgresqlUser,
+		cfg.Postgres.PostgresqlPassword,
+		cfg.Postgres.PostgresqlHost,
+		cfg.Postgres.PostgresqlPort,
+		cfg.Postgres.PostgresqlDbname,
+		sslMode,
+	)
+
 	gormDB, err := postgres.DBInit(postgresUrl)
 	if err != nil {
 		log.Fatalf("Postgresql init: %s", err)
@@ -49,23 +79,21 @@ func main() {
 
 	Migrate(gormDB)
 
-	redis := redis.RedisInit(redisUrl)
+	// redis
+	redis := redis.RedisInit(cfg.Redis.RedisAddr)
 	defer redis.Close()
 
-	locker := locker.LockerInit(redis)
+	locker := locker.LockerInit(redis, cfg)
 
-	var ServiceName = "api"
-	var LogSpans = false
-	var JaegerHost = "localhost:6831"
 	jaegerCfgInstance := jaegercfg.Configuration{
-		ServiceName: ServiceName,
+		ServiceName: cfg.Jaeger.ServiceName,
 		Sampler: &jaegercfg.SamplerConfig{
 			Type:  jaeger.SamplerTypeConst,
 			Param: 1,
 		},
 		Reporter: &jaegercfg.ReporterConfig{
-			LogSpans:           LogSpans,
-			LocalAgentHostPort: JaegerHost,
+			LogSpans:           cfg.Jaeger.LogSpans,
+			LocalAgentHostPort: cfg.Jaeger.Host,
 		},
 	}
 
@@ -82,7 +110,7 @@ func main() {
 	defer closer.Close()
 	log.Println("Opentracing connected")
 
-	server := server.NewServer(gormDB, redis, locker)
+	server := server.NewServer(cfg, gormDB, redis, locker)
 	if err = server.Run(); err != nil {
 		log.Fatal(err)
 	}

@@ -27,8 +27,6 @@ func (r *userRepo) FindOneUser(c context.Context, condition interface{}) (models
 	return model, err
 }
 
-// You could input an UserModel which will be saved in database returning with error info
-// 	if err := SaveOne(&userModel); err != nil { ... }
 func (r *userRepo) SaveOne(c context.Context, data interface{}) error {
 	span, _ := opentracing.StartSpanFromContext(c, "user.userRepo.SaveOne")
 	defer span.Finish()
@@ -45,8 +43,6 @@ func (r *userRepo) Update(c context.Context, data models.User) error {
 	return err
 }
 
-// You could get a following list of userModel
-// 	followings := userModel.GetFollowings()
 func (r *userRepo) GetFollowingsByUser(c context.Context, userId uint) []models.User {
 	span, _ := opentracing.StartSpanFromContext(c, "user.userRepo.GetFollowingsByUser")
 	defer span.Finish()
@@ -69,8 +65,6 @@ func (r *userRepo) GetFollowingsByUser(c context.Context, userId uint) []models.
 	return followings
 }
 
-// You could check whether  userModel1 following userModel2
-// 	followingBool = myUserModel.isFollowing(self.UserModel)
 func (r *userRepo) IsUserFollowing(c context.Context, userId, followerId uint) bool {
 	span, _ := opentracing.StartSpanFromContext(c, "user.userRepo.IsUserFollowing")
 	defer span.Finish()
@@ -83,8 +77,6 @@ func (r *userRepo) IsUserFollowing(c context.Context, userId, followerId uint) b
 	return follow.ID != 0
 }
 
-// You could add a following relationship as userModel1 following userModel2
-// 	err = userModel1.following(userModel2)
 func (r *userRepo) SetUserFollow(c context.Context, userId, followerId uint) error {
 	span, _ := opentracing.StartSpanFromContext(c, "user.userRepo.SetUserFollow")
 	defer span.Finish()
@@ -97,8 +89,6 @@ func (r *userRepo) SetUserFollow(c context.Context, userId, followerId uint) err
 	return err
 }
 
-// You could delete a following relationship as userModel1 following userModel2
-// 	err = userModel1.unFollowing(userModel2)
 func (r *userRepo) RemoveUserFollow(c context.Context, userId, followerId uint) error {
 	span, _ := opentracing.StartSpanFromContext(c, "user.userRepo.RemoveUserFollow")
 	defer span.Finish()

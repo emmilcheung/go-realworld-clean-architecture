@@ -22,10 +22,6 @@ func (e *User) TableName() string {
 	return "user_models"
 }
 
-// What's bcrypt? https://en.wikipedia.org/wiki/Bcrypt
-// Golang bcrypt doc: https://godoc.org/golang.org/x/crypto/bcrypt
-// You can change the value in bcrypt.DefaultCost to adjust the security index.
-// 	err := userModel.setPassword("password0")
 func (u *User) SetPassword(password string) error {
 	if len(password) == 0 {
 		return errors.New("password should not be empty!")
@@ -38,7 +34,8 @@ func (u *User) SetPassword(password string) error {
 }
 
 // Database will only save the hashed string, you should check it by util function.
-// 	if err := serModel.checkPassword("password0"); err != nil { password error }
+//
+//	if err := serModel.checkPassword("password0"); err != nil { password error }
 func (u *User) CheckPassword(password string) error {
 	bytePassword := []byte(password)
 	byteHashedPassword := []byte(u.PasswordHash)
@@ -51,8 +48,9 @@ func (u *User) CheckPassword(password string) error {
 // DB schema looks like: id, created_at, updated_at, deleted_at, following_id, followed_by_id.
 //
 // Retrieve them by:
-// 	db.Where(Follow{ FollowingID:  v.ID, FollowedByID: u.ID, }).First(&follow)
-// 	db.Where(Follow{ FollowedByID: u.ID, }).Find(&follows)
+//
+//	db.Where(Follow{ FollowingID:  v.ID, FollowedByID: u.ID, }).First(&follow)
+//	db.Where(Follow{ FollowedByID: u.ID, }).Find(&follows)
 //
 // More details about gorm.Model: http://jinzhu.me/gorm/models.html#conventions
 type Follow struct {

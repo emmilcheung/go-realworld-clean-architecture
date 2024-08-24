@@ -1,6 +1,8 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	requestid "github.com/sumit-tembe/gin-requestid"
 
@@ -8,15 +10,11 @@ import (
 	articleRepository "github.com/gothinkster/golang-gin-realworld-example-app/internal/article/repository"
 	articleUsecase "github.com/gothinkster/golang-gin-realworld-example-app/internal/article/usecase"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/middleware"
-	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/metric"
-
 	sessRepository "github.com/gothinkster/golang-gin-realworld-example-app/internal/session/repository"
-
 	sessUsecase "github.com/gothinkster/golang-gin-realworld-example-app/internal/session/usecase"
-
 	userHttp "github.com/gothinkster/golang-gin-realworld-example-app/internal/user/delivery/http"
-
 	userRepository "github.com/gothinkster/golang-gin-realworld-example-app/internal/user/repository"
+	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/metric"
 )
 
 func (s *Server) MapHandlers(engine *gin.Engine) error {
@@ -25,10 +23,10 @@ func (s *Server) MapHandlers(engine *gin.Engine) error {
 	articleRepo := articleRepository.NewArticleRepository(s.db)
 	articleUc := articleUsecase.NewArticleUseCase(articleRepo)
 	articleHandlers := articleHttp.NewArticleHandlers(articleRepo, articleUc, s.locker)
-	sessRepo := sessRepository.NewSessionRepository(s.redisClient)
-	sessUC := sessUsecase.NewSessionUseCase(sessRepo)
+	sessRepo := sessRepository.NewSessionRepository(s.cfg, s.redisClient)
+	sessUC := sessUsecase.NewSessionUseCase(s.cfg, sessRepo)
 	userRepo := userRepository.NewUserRepository(s.db)
-	userHandler := userHttp.NewUserHandlers(userRepo, sessUC, s.locker)
+	userHandler := userHttp.NewUserHandlers(s.cfg, userRepo, sessUC, s.locker)
 	mv := middleware.NewMiddlewareManager(s.db, sessUC, []string{"*"})
 
 	// Middlewares
@@ -58,6 +56,10 @@ func (s *Server) MapHandlers(engine *gin.Engine) error {
 		articleHttp.ArticlesRouteRegister(v1.Group("/articles"), articleHandlers)
 		userHttp.UserRegister(v1.Group("/user"), userHandler)
 		userHttp.ProfileRegister(v1.Group("/profiles"), userHandler)
+
+		engine.GET("/healthz", func(c *gin.Context) {
+			c.Status(http.StatusOK)
+		})
 	}
 
 	return nil

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/gothinkster/golang-gin-realworld-example-app/config"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/models"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/session"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/utils"
@@ -12,12 +13,13 @@ import (
 
 // Session use case
 type sessionUC struct {
+	cfg         *config.Config
 	sessionRepo session.SessRepository
 }
 
 // New session use case constructor
-func NewSessionUseCase(sessionRepo session.SessRepository) session.UseCase {
-	return &sessionUC{sessionRepo: sessionRepo}
+func NewSessionUseCase(cfg *config.Config, sessionRepo session.SessRepository) session.UseCase {
+	return &sessionUC{cfg: cfg, sessionRepo: sessionRepo}
 }
 
 // Create new session
@@ -26,7 +28,7 @@ func (u *sessionUC) CreateSession(ctx context.Context, user *models.User, expire
 	defer span.Finish()
 
 	sessionID := uuid.New().String()
-	jwt := utils.GenToken(user.ID, sessionID)
+	jwt := utils.GenToken(user.ID, sessionID, u.cfg.Server.JwtSecretKey)
 	return u.sessionRepo.CreateSession(ctx, sessionID, jwt, expire)
 }
 

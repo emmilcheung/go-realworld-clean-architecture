@@ -8,6 +8,14 @@ import (
 	requestid "github.com/sumit-tembe/gin-requestid"
 )
 
+// Get config path for local or docker
+func GetConfigPath(configPath string) string {
+	if configPath == "docker" {
+		return "./config/config-docker"
+	}
+	return "./config/config-local"
+}
+
 // Get request id from echo context
 func GetRequestID(c *gin.Context) string {
 	return requestid.GetRequestIDFromHeaders(c)

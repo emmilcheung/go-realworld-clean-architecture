@@ -1,0 +1,90 @@
+version: "3.9"
+
+services:
+  server:
+    container_name: realworld
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    depends_on:
+      - postgresql
+      - redis
+      - jaeger
+    volumes:
+      - ./:/app
+    networks:
+      - microservices
+  postgresql:
+    image: postgres:13
+    container_name: api_postgresql
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=realworld
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - microservices
+  redis:
+    image: redis:latest
+    container_name: api_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    restart: always
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks: [ "microservices" ]
+
+  node_exporter:
+    container_name: node_exporter_container
+    image: prom/node-exporter
+    ports:
+      - '9101:9100'
+    networks:
+      - microservices
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    volumes:
+      - ./docker/grafana/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    ports:
+      - "3000:3000"
+    networks: [ "microservices" ]
+  
+  jaeger:
+    container_name: jaeger_container
+    image: jaegertracing/all-in-one:1
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 14250:14250
+      - 9411:9411
+    networks:
+      - microservices
+
+networks:
+  microservices:
+    name: microservices

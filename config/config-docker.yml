@@ -1,0 +1,44 @@
+server:
+  AppVersion: 1.0.0
+  AppName: realworld
+  Port: :8080
+  Mode: Production
+  JwtSecretKey: replace_with_strong_secret_key
+  ReadTimeout: 10
+  WriteTimeout: 10
+  CtxDefaultTimeout: 12
+  Debug: false
+
+postgres:
+  PostgresqlHost: postgresql
+  PostgresqlPort: 5432
+  PostgresqlUser: postgres
+  PostgresqlPassword: password
+  PostgresqlDbname: realworld
+  PostgresqlSslmode: false
+  PgDriver: pgx
+
+redis:
+  RedisAddr: redis:6379
+  RedisPassword:
+  RedisDb: 0
+  RedisDefaultdb: 0
+  MinIdleConns: 200
+  PoolSize: 12000
+  PoolTimeout: 240
+  Password: ""
+  DB: 0
+
+session:
+  Name: session-id
+  Prefix: api-session
+  Expire: 86400
+
+metrics:
+  url: 0.0.0.0:7070
+  service: api
+
+jaeger:
+  Host: jaeger:6831
+  ServiceName: api
+  LogSpans: true

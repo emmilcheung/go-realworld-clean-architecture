@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: jaeger-deployment
+  name: jaeger-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger-deployment
+  template:
+    metadata:
+      labels:
+        app: jaeger-deployment
+    spec:
+      containers:
+        - env:
+            - name: COLLECTOR_ZIPKIN_HTTP_PORT
+              value: "9411"
+          image: jaegertracing/all-in-one:1
+          name: jaeger-container
+          ports:
+            - containerPort: 5775
+              protocol: UDP
+            - containerPort: 6831
+              protocol: UDP
+            - containerPort: 6832
+              protocol: UDP
+            - containerPort: 5778
+              protocol: TCP
+            - containerPort: 16686
+              protocol: TCP
+            - containerPort: 14268
+              protocol: TCP
+            - containerPort: 14250
+              protocol: TCP
+            - containerPort: 9411
+              protocol: TCP
+      restartPolicy: Always

@@ -6,8 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// My own Error type that will help return my customized Error info
-//  {"database": {"hello":"no such table", error: "not_exists"}}
 type CommonError struct {
 	Errors map[string]interface{} `json:"errors"`
 }

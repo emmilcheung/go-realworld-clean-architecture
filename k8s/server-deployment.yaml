@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: api-deployment
+  name: api-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-deployment
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: api-deployment
+    spec:
+      containers:
+        - env:
+            - name: PORT
+              value: "8080"
+          image: realworld
+          name: api
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+              protocol: TCP
