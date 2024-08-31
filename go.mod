@@ -25,5 +25,6 @@ require (
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	go.uber.org/atomic v1.11.0 // indirect
-	golang.org/x/crypto v0.22.0
+	golang.org/x/crypto v0.26.0
+	golang.org/x/net v0.28.0 // indirect
 )

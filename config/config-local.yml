@@ -1,13 +1,15 @@
 server:
   AppVersion: 1.0.0
   AppName: realworld
-  Port: :5000
+  Port: :8080
   Mode: Development
   JwtSecretKey: replace_with_strong_secret_key
   ReadTimeout: 10
   WriteTimeout: 10
   CtxDefaultTimeout: 12
   Debug: true
+  CSRF: true
+  CSRF_Key: SJOFH98movMXx3drdbQzXa+4O15pyDFGhiVZZyUvVyx2JzAzJTWXmK2uqO7k4OXm9kPhem12hSyu0EAIjhUE5FyrCDfAM+YRWv9TKs59cO5whykS8obYxp03FHdNQ7bkt2E5cD+If8nrid3sFT0rsbQQMiBw6/a207p5/2dMay5LEgf3tnIc08QPFVSyHxKcYf/kMNqytNU5M9p0x6o09dvJ6OU+Oac+rg5OKzYwlYxKivuNm85/o3yJsZ/Q8CU5RlAMhncvcxeW13Z0P0WWEhkg3MX0WnPBb3HL3t2qaPjqM/R0nYuK8kvY7S6rln3iCapa+i0tNMXzcEO2QDURhQ==
 
 postgres:
   PostgresqlHost: localhost

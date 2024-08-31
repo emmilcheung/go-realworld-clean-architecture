@@ -11,6 +11,7 @@ import (
 	"github.com/gothinkster/golang-gin-realworld-example-app/config"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/models"
 	"github.com/gothinkster/golang-gin-realworld-example-app/internal/server"
+	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/csrf"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/db/postgres"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/db/redis"
 	"github.com/gothinkster/golang-gin-realworld-example-app/pkg/locker"
@@ -51,6 +52,16 @@ func main() {
 	cfg, err := config.ParseConfig(cfgFile)
 	if err != nil {
 		log.Fatalf("ParseConfig: %v", err)
+	}
+
+	if cfg.Server.CSRF {
+		var argCSRFKey string
+		if cfg.Server.CSRF_Key != "" {
+			argCSRFKey = cfg.Server.CSRF_Key
+		} else {
+			argCSRFKey = utils.Random64BaseEncodedBytes(256)
+		}
+		csrf.Ensure(argCSRFKey)
 	}
 
 	// postgres

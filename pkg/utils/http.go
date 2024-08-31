@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
@@ -19,6 +20,20 @@ func GetConfigPath(configPath string) string {
 // Get request id from echo context
 func GetRequestID(c *gin.Context) string {
 	return requestid.GetRequestIDFromHeaders(c)
+}
+
+func GetResourceFromPath(path string) *string {
+	if !strings.HasPrefix(path, "/api") {
+		return nil
+	}
+
+	parts := strings.Split(path, "/")
+	if len(parts) < 2 {
+		return nil
+	}
+
+	resource := (strings.Join(parts[1:], "-"))
+	return &resource
 }
 
 // ReqIDCtxKey is a key used for the Request ID in context

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/base64"
 	"math/rand"
 	"time"
 
@@ -34,4 +35,16 @@ func GenToken(id uint, sessionId string, secret string) string {
 	// Sign and get the complete encoded token as a string
 	token, _ := jwt_token.SignedString([]byte(NBSecretPassword))
 	return token
+}
+
+func RandomBytes(size int) []byte {
+	bytes := make([]byte, size)
+	_, _ = rand.Read(bytes)
+
+	return bytes
+}
+
+func Random64BaseEncodedBytes(size int) string {
+	bytes := RandomBytes(size)
+	return base64.StdEncoding.EncodeToString(bytes)
 }

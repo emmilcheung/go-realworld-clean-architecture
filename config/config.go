@@ -30,8 +30,9 @@ type ServerConfig struct {
 	WriteTimeout      time.Duration
 	CtxDefaultTimeout time.Duration
 	Debug             bool
+	CSRF              bool
+	CSRF_Key          string
 	// SSL               bool
-	// CSRF              bool
 }
 
 // Logger config
