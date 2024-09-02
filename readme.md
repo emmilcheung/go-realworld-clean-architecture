@@ -113,7 +113,7 @@ docker-compose up -d
 go run cmd/api/main.go
 ```
 
-## End-to_End
+## End-to-End
 
 [RealWorld](https://github.com/gothinkster/realworld) provides end-to-end testing from a [postman specification](https://github.com/gothinkster/realworld/tree/master/api) to verify application behavior
 ![Result](assets/e2e_postman.png)
