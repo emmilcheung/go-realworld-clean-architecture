@@ -6,6 +6,10 @@
 
 ####  Command
 ```cmd
+# cache server image into minikube
+eval $(minikube docker-env --unset)
+docker build -t realworld .
+
 # apply
 minikube kubectl apply -f .
 
